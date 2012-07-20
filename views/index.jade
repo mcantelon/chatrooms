@@ -9,6 +9,13 @@ block content
     input(id='send-message')
     input(id='send-button', type='button', value='Send')
 
+  #help Chat commands:
+    ul
+      li Change username: 
+        code /nick [username]
+      li Change room: 
+        code /join [room name]
+
   script(src='/socket.io/socket.io.js')
   script(src='/javascripts/jquery-1.7.2.min.js')
   script(src='/javascripts/chat.js')

@@ -40,5 +40,10 @@ a {
 
 #send-message {
   width: 700px;
+  margin-bottom: 1em;
   margin-right: 1em;
+}
+
+#help {
+  font: 10px "Lucida Grande", Helvetica, Arial, sans-serif;
 }

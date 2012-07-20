@@ -31,10 +31,46 @@ var server = http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 
-var io = require('socket.io').listen(server);
+var io = require('socket.io').listen(server)
+  , guestNumber = 1
+  , nickNames = {}
+  , namesUsed = []
+  , name;
 
 io.sockets.on('connection', function (socket) {
   socket.join('Lobby');
+
+  name = 'Guest' + guestNumber;
+  nickNames[socket.id] = name;
+  socket.emit('nameResult', {
+    success: true,
+    name: name
+  });
+  namesUsed.push(name);
+  guestNumber += 1; 
+
+  socket.on('nameAttempt', function(name) {
+    if (name.indexOf('Guest') == 0) {
+      socket.emit('nameResult', {
+        success: false,
+        message: 'Names cannot begin with "Guest".'
+      });
+    } else {
+      if (namesUsed.indexOf(name) == -1) {
+        namesUsed.push(name);
+        nickNames[socket.id] = name;
+        socket.emit('nameResult', {
+          success: true,
+          name: name
+        });
+      } else {
+        socket.emit('nameResult', {
+          success: false,
+          message: 'That name is already in use.'
+        });
+      }
+    }
+  });
 
   socket.on('join', function(room) {
     socket.leave(room.previousRoom);
@@ -44,7 +80,7 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('message', function (message) {
     socket.broadcast.to(message.room).emit('message', {
-      text: message.text
+      text: nickNames[socket.id] + ': ' + message.text
     });
     console.log('Relayed to ' + message.room + ': ' + message.text);
   });

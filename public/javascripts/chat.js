@@ -1,7 +1,11 @@
 var socket = io.connect('http://127.0.0.1');
 
-function divElement(message) {
+function divEscapedContentElement(message) {
   return $('<div></div>').text(message);
+}
+
+function divSystemContentElement(message) {
+  return $('<div></div>').html(message);
 }
 
 function processMessage(socket) {
@@ -18,19 +22,33 @@ function processMessage(socket) {
 
 function processCommand(socket, command) {
   var words = command.split(' ')
-    , command = words[0].substring(1, words[0].length);
+    , command = words[0].substring(1, words[0].length)
+    , message;
 
-  if (command == 'join') {
-    console.log('joining');
-    words.shift();
-    var room = words.join(' '); 
-    console.log('room: ' + room + '.');
-    socket.emit('join', {
-      newRoom: room,
-      previousRoom: $('#room').text()
-    }); 
-    $('#room').text(room);
+  switch(command) {
+    case 'join':
+      words.shift();
+      var room = words.join(' '); 
+      socket.emit('join', {
+        newRoom: room,
+        previousRoom: $('#room').text()
+      });
+      message = '<i>Room changed.</i>'; 
+      $('#room').text(room);
+      break;
+
+    case 'nick':
+      words.shift();
+      var name = words.join(' ');
+      socket.emit('nameAttempt', name);
+      break;
+
+    default:
+      message = '<i>Unrecognized command.</i>';
+      break;
   }
+
+  $('#messages').append(divSystemContentElement(message));
 }
 
 function sendMessage(socket) {
@@ -39,12 +57,27 @@ function sendMessage(socket) {
     text: $('#send-message').val()
   };
   socket.emit('message', message);
-  $('#messages').append(divElement(message.text));
+  $('#messages').append(divEscapedContentElement(message.text));
   $('#messages').scrollTop($('#messages').prop('scrollHeight'))
 }
 
 $(document).ready(function() {
+  var name;
+
   $('#room').text('Lobby');
+
+  socket.on('nameResult', function(result) {
+    var message;
+    if (result.success) {
+      message = 'You are now know as ' + result.name + '.';
+      name = result.name;
+    } else {
+      message = result.message;
+      //message = 'That name is unavailable.';
+    }
+    message = '<i>' + message + '</i>';
+    $('#messages').append(divSystemContentElement(message));
+  });
 
   socket.on('message', function (message) {
     var newElement = $('<div></div>').text(message.text);
@@ -56,7 +89,7 @@ $(document).ready(function() {
     for(var room in rooms) {
       room = room.substring(1, room.length);
       if (room != '') {
-        $('#room-list').append(divElement(room));
+        $('#room-list').append(divEscapedContentElement(room));
       }
     }
   });
