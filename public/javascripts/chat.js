@@ -40,6 +40,7 @@ function sendMessage(socket) {
   };
   socket.emit('message', message);
   $('#messages').append(messageHtml(message.text));
+  $('#messages').scrollTop($('#messages').prop('scrollHeight'))
 }
 
 $(document).ready(function() {
