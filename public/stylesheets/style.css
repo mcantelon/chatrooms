@@ -18,6 +18,13 @@ a {
   margin-bottom: 1em;
 }
 
+#messages {
+  height: 300px;
+  overflow: auto;
+  background-color: #eee;
+  margin-bottom: 1em;
+}
+
 #send-message {
   width: 700px;
   margin-right: 1em;
