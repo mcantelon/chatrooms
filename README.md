@@ -8,6 +8,15 @@ You want to know who else is in the room?
 
 This will never happen for you.
 
-So mess around with it.
+Installation:
 
-Like the child.
+    npm install -g chatrooms
+
+Startup if installed globally:
+
+    chatrooms
+
+Old-school startup:
+
+    ./app.js
+
