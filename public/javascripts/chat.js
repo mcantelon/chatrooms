@@ -1,4 +1,4 @@
-var socket = io.connect('http://127.0.0.1');
+var socket = io.connect();
 
 function divEscapedContentElement(message) {
   return $('<div></div>').text(message);
