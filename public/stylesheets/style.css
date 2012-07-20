@@ -6,3 +6,19 @@ body {
 a {
   color: #00B7FF;
 }
+
+#content {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#room {
+  background-color: #ddd;
+  margin-bottom: 1em;
+}
+
+#send-message {
+  width: 700px;
+  margin-right: 1em;
+}

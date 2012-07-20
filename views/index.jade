@@ -4,57 +4,10 @@ block content
   #room
   #messages
 
-  form
-    input(id='send-message', size='40')
+  form#send-form
+    input(id='send-message')
     input(id='send-button', type='button', value='Send')
 
   script(src='/socket.io/socket.io.js')
   script(src='/javascripts/jquery-1.7.2.min.js')
-
-  script
-    var socket = io.connect('http://localhost');
-    socket.on('news', function (data) {
-      console.log(data);
-      socket.emit('my other event', { my: 'data' });
-    });
-
-    function messageHtml(message) {
-      return '<div>' + message + '</div>';
-    }
-
-    $(document).ready(function() {
-      $('#room').text('Lobby');
-      $('#send-button').click(function() {
-        var message = $('#send-message').val();
-
-        if (message[0] == '/') {
-          console.log('command');
-          var words = message.split(' ')
-            , command = words[0].substring(1, words[0].length);
-          console.log(command);
-          if (command == 'join') {
-            console.log('joining');
-            words.shift();
-            var room = words.join(' ');
-            console.log('room: ' + room + '.');
-            socket.emit('join', {
-              newRoom: room,
-              previousRoom: $('#room').text()
-            });
-            $('#room').text(room);
-          }
-        } else {
-          var room = $('#room').text();
-          socket.emit('message', {
-            room: room,
-            text: message
-          });
-          $('#messages').append(messageHtml(message));
-        }
-        $('#send-message').val('');
-      });
-      socket.on('message', function (message) {
-        console.log(message);
-        $('#messages').append(messageHtml(message.text));
-      });
-    });
+  script(src='/javascripts/chat.js')
