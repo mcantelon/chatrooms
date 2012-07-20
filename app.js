@@ -42,15 +42,14 @@ io.sockets.on('connection', function (socket) {
     console.log('Joined ' + room);
   });
 
-  socket.on('rooms', function() {
-    socket.emit('rooms', io.sockets.manager.rooms);
-  });
-
   socket.on('message', function (message) {
-socket.emit('rooms', io.sockets.manager.rooms);
     socket.broadcast.to(message.room).emit('message', {
       text: message.text
     });
     console.log('Relayed to ' + message.room + ': ' + message.text);
+  });
+
+  socket.on('rooms', function() {
+    socket.emit('rooms', io.sockets.manager.rooms);
   });
 });

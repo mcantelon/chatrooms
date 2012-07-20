@@ -55,9 +55,15 @@ $(document).ready(function() {
     $('#room-list').empty();
     for(var room in rooms) {
       room = room.substring(1, room.length);
-      $('#room-list').append(divElement(room));
+      if (room != '') {
+        $('#room-list').append(divElement(room));
+      }
     }
   });
+
+  setInterval(function() {
+    socket.emit('rooms');
+  }, 1000);
 
   $('#send-form').submit(function() {
     processMessage(socket);
@@ -67,8 +73,4 @@ $(document).ready(function() {
   $('#send-button').click(function() {
     processMessage(socket);
   });
-
-  setInterval(function() {
-    socket.emit('rooms');
-  }, 1000);
 });
