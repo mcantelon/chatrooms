@@ -9,5 +9,8 @@
     "express": "3.0.0beta1",
     "jade": "*",
     "socket.io": "~0.9.6"
+  },
+  "bin" : {
+    "chatrooms" : "./app.js"
   }
 }
