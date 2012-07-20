@@ -92,6 +92,9 @@ $(document).ready(function() {
         $('#room-list').append(divEscapedContentElement(room));
       }
     }
+    $('#room-list div').click(function() {
+      processCommand(socket, '/join ' + $(this).text())
+    });
   });
 
   setInterval(function() {
