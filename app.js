@@ -35,10 +35,17 @@ var io = require('socket.io').listen(server)
   , guestNumber = 1
   , nickNames = {}
   , namesUsed = []
-  , name;
+  , name
+  , nameIndex;
 
 io.sockets.on('connection', function (socket) {
   socket.join('Lobby');
+
+  socket.on('disconnect', function(socket) {
+    nameIndex = namesUsed.indexOf(nickNames[socket.id]);
+    delete nameUsed[nameIndex];
+    delete nickNames[socket.id];
+  });
 
   name = 'Guest' + guestNumber;
   nickNames[socket.id] = name;
