@@ -68,7 +68,7 @@ $(document).ready(function() {
   socket.on('nameResult', function(result) {
     var message;
     if (result.success) {
-      message = 'You are now know as ' + result.name + '.';
+      message = 'You are now known as ' + result.name + '.';
       name = result.name;
     } else {
       message = result.message;
