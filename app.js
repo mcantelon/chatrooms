@@ -9,7 +9,6 @@ app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
-  app.use(express.favicon());
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
@@ -79,14 +78,13 @@ io.sockets.on('connection', function (socket) {
   socket.on('join', function(room) {
     socket.leave(room.previousRoom);
     socket.join(room.newRoom);
-    console.log('Joined ' + room);
+    socket.emit('joinResult', {room: room.newRoom});
   });
 
   socket.on('message', function (message) {
     socket.broadcast.to(message.room).emit('message', {
       text: nickNames[socket.id] + ': ' + message.text
     });
-    console.log('Relayed to ' + message.room + ': ' + message.text);
   });
 
   socket.on('rooms', function() {

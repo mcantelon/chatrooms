@@ -9,14 +9,25 @@ function divSystemContentElement(message) {
 }
 
 function processMessage(socket) {
-  var message = $('#send-message').val();
+  var message = $('#send-message').val()
+    , systemMessage;
 
   if (message[0] == '/') {
-    processCommand(socket, message);
+    systemMessage = processCommand(socket, message);
+    $('#messages').append(divSystemContentElement(systemMessage));
   } else {
-    sendMessage(socket);
-  }   
+    sendMessage(socket, $('#room').text(), message);
+    $('#messages').append(divEscapedContentElement(message));
+    $('#messages').scrollTop($('#messages').prop('scrollHeight'));
+  }
   $('#send-message').val('');
+}
+
+function changeRoom(room) {
+  socket.emit('join', {
+    newRoom: room,
+    previousRoom: $('#room').text()
+  });
 }
 
 function processCommand(socket, command) {
@@ -28,12 +39,7 @@ function processCommand(socket, command) {
     case 'join':
       words.shift();
       var room = words.join(' '); 
-      socket.emit('join', {
-        newRoom: room,
-        previousRoom: $('#room').text()
-      });
-      message = '<i>Room changed.</i>'; 
-      $('#room').text(room);
+      changeRoom(room);
       break;
 
     case 'nick':
@@ -47,17 +53,15 @@ function processCommand(socket, command) {
       break;
   }
 
-  $('#messages').append(divSystemContentElement(message));
+  return message;
 }
 
-function sendMessage(socket) {
+function sendMessage(socket, room, text) {
   var message = {
-    room: $('#room').text(),
-    text: $('#send-message').val()
+    room: room,
+    text: text
   };
   socket.emit('message', message);
-  $('#messages').append(divEscapedContentElement(message.text));
-  $('#messages').scrollTop($('#messages').prop('scrollHeight'))
 }
 
 $(document).ready(function() {
@@ -72,10 +76,14 @@ $(document).ready(function() {
       name = result.name;
     } else {
       message = result.message;
-      //message = 'That name is unavailable.';
     }
     message = '<i>' + message + '</i>';
     $('#messages').append(divSystemContentElement(message));
+  });
+
+  socket.on('joinResult', function(result) {
+    $('#room').text(result.room);
+    $('#messages').append(divSystemContentElement('<i>Room changed.</i>'));
   });
 
   socket.on('message', function (message) {
@@ -85,12 +93,14 @@ $(document).ready(function() {
 
   socket.on('rooms', function(rooms) {
     $('#room-list').empty();
+
     for(var room in rooms) {
       room = room.substring(1, room.length);
       if (room != '') {
         $('#room-list').append(divEscapedContentElement(room));
       }
     }
+
     $('#room-list div').click(function() {
       processCommand(socket, '/join ' + $(this).text())
     });
