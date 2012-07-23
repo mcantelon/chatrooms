@@ -1,45 +1,25 @@
 var socket = io.connect();
 
-function divEscapedContentElement(message) {
-  return $('<div></div>').text(message);
-}
+var Chat = function(socket) {
+  this.socket = socket;
+};
 
-function divSystemContentElement(message) {
-  return $('<div></div>').html(message);
-}
-
-function processUserInput(socket) {
-  var message = $('#send-message').val()
-    , systemMessage;
-
-  if (message[0] == '/') {
-    systemMessage = processCommand(socket, $('#room').text(), message);
-    $('#messages').append(divSystemContentElement(systemMessage));
-  } else {
-    sendMessage(socket, $('#room').text(), message);
-    $('#messages').append(divEscapedContentElement(message));
-    $('#messages').scrollTop($('#messages').prop('scrollHeight'));
-  }
-
-  $('#send-message').val('');
-}
-
-function sendMessage(socket, room, text) {
+Chat.prototype.sendMessage = function(room, text) {
   var message = {
     room: room,
     text: text
   };
-  socket.emit('message', message);
-}
+  this.socket.emit('message', message);
+};
 
-function changeRoom(currentRoom, newRoom) {
-  socket.emit('join', {
+Chat.prototype.changeRoom = function(currentRoom, newRoom) {
+  this.socket.emit('join', {
     newRoom: newRoom,
     previousRoom: currentRoom
   });
-}
+};
 
-function processCommand(socket, currentRoom, command) {
+Chat.prototype.processCommand = function(currentRoom, command) {
   var words = command.split(' ')
     , command = words[0].substring(1, words[0].length)
     , message;
@@ -48,13 +28,13 @@ function processCommand(socket, currentRoom, command) {
     case 'join':
       words.shift();
       var newRoom = words.join(' '); 
-      changeRoom(currentRoom, newRoom);
+      this.changeRoom(currentRoom, newRoom);
       break;
 
     case 'nick':
       words.shift();
       var name = words.join(' ');
-      socket.emit('nameAttempt', name);
+      this.socket.emit('nameAttempt', name);
       break;
 
     default:
@@ -63,12 +43,38 @@ function processCommand(socket, currentRoom, command) {
   }
 
   return message;
+};
+
+function divEscapedContentElement(message) {
+  return $('<div></div>').text(message);
+}
+
+function divSystemContentElement(message) {
+  return $('<div></div>').html(message);
+}
+
+function processUserInput(chatApp, socket) {
+  var message = $('#send-message').val()
+    , systemMessage;
+
+  if (message[0] == '/') {
+    systemMessage = chatApp.processCommand($('#room').text(), message);
+    $('#messages').append(divSystemContentElement(systemMessage));
+  } else {
+    chatApp.sendMessage($('#room').text(), message);
+    $('#messages').append(divEscapedContentElement(message));
+    $('#messages').scrollTop($('#messages').prop('scrollHeight'));
+  }
+
+  $('#send-message').val('');
 }
 
 $(document).ready(function() {
   var name;
 
   $('#room').text('Lobby');
+
+  var chatApp = new Chat(socket);
 
   socket.on('nameResult', function(result) {
     var message;
@@ -103,7 +109,10 @@ $(document).ready(function() {
     }
 
     $('#room-list div').click(function() {
-      processCommand(socket, $('#room').text(), '/join ' + $(this).text())
+      chatApp.processCommand(
+        $('#room').text(),
+        '/join ' + $(this).text()
+      )
     });
   });
 
@@ -112,11 +121,11 @@ $(document).ready(function() {
   }, 1000);
 
   $('#send-form').submit(function() {
-    processUserInput(socket);
+    processUserInput(chatApp, socket);
     return false;
   });
 
   $('#send-button').click(function() {
-    processUserInput(socket);
+    processUserInput(chatApp, socket);
   });
 });
