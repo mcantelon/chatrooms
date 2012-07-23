@@ -25,11 +25,8 @@ function processUserInput(chatApp, socket) {
 }
 
 $(document).ready(function() {
-  var name;
-
-  $('#room').text('Lobby');
-
-  var chatApp = new Chat(socket);
+  var name
+    , chatApp = new Chat(socket);
 
   socket.on('nameResult', function(result) {
     var message;
