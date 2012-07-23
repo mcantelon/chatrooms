@@ -8,29 +8,38 @@ function divSystemContentElement(message) {
   return $('<div></div>').html(message);
 }
 
-function processMessage(socket) {
+function processUserInput(socket) {
   var message = $('#send-message').val()
     , systemMessage;
 
   if (message[0] == '/') {
-    systemMessage = processCommand(socket, message);
+    systemMessage = processCommand(socket, $('#room').text(), message);
     $('#messages').append(divSystemContentElement(systemMessage));
   } else {
     sendMessage(socket, $('#room').text(), message);
     $('#messages').append(divEscapedContentElement(message));
     $('#messages').scrollTop($('#messages').prop('scrollHeight'));
   }
+
   $('#send-message').val('');
 }
 
-function changeRoom(room) {
+function sendMessage(socket, room, text) {
+  var message = {
+    room: room,
+    text: text
+  };
+  socket.emit('message', message);
+}
+
+function changeRoom(currentRoom, newRoom) {
   socket.emit('join', {
-    newRoom: room,
-    previousRoom: $('#room').text()
+    newRoom: newRoom,
+    previousRoom: currentRoom
   });
 }
 
-function processCommand(socket, command) {
+function processCommand(socket, currentRoom, command) {
   var words = command.split(' ')
     , command = words[0].substring(1, words[0].length)
     , message;
@@ -38,8 +47,8 @@ function processCommand(socket, command) {
   switch(command) {
     case 'join':
       words.shift();
-      var room = words.join(' '); 
-      changeRoom(room);
+      var newRoom = words.join(' '); 
+      changeRoom(currentRoom, newRoom);
       break;
 
     case 'nick':
@@ -54,14 +63,6 @@ function processCommand(socket, command) {
   }
 
   return message;
-}
-
-function sendMessage(socket, room, text) {
-  var message = {
-    room: room,
-    text: text
-  };
-  socket.emit('message', message);
 }
 
 $(document).ready(function() {
@@ -102,7 +103,7 @@ $(document).ready(function() {
     }
 
     $('#room-list div').click(function() {
-      processCommand(socket, '/join ' + $(this).text())
+      processCommand(socket, $('#room').text(), '/join ' + $(this).text())
     });
   });
 
@@ -111,11 +112,11 @@ $(document).ready(function() {
   }, 1000);
 
   $('#send-form').submit(function() {
-    processMessage(socket);
+    processUserInput(socket);
     return false;
   });
 
   $('#send-button').click(function() {
-    processMessage(socket);
+    processUserInput(socket);
   });
 });
