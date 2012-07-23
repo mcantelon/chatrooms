@@ -36,10 +36,11 @@ io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {
   socket.join('Lobby');
+  socket.emit('joinResult', {room: 'Lobby'});
 
-  socket.on('disconnect', function(socket) {
+  socket.on('disconnect', function() {
     nameIndex = namesUsed.indexOf(nickNames[socket.id]);
-    delete nameUsed[nameIndex];
+    delete namesUsed[nameIndex];
     delete nickNames[socket.id];
   });
 
