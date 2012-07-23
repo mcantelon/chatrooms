@@ -19,7 +19,7 @@ Chat.prototype.changeRoom = function(currentRoom, newRoom) {
 
 Chat.prototype.processCommand = function(currentRoom, command) {
   var words = command.split(' ')
-    , command = words[0].substring(1, words[0].length)
+    , command = words[0].substring(1, words[0].length).toLowerCase()
     , message;
 
   switch(command) {
