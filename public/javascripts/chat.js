@@ -20,7 +20,7 @@ Chat.prototype.changeRoom = function(currentRoom, newRoom) {
 Chat.prototype.processCommand = function(currentRoom, command) {
   var words = command.split(' ')
     , command = words[0].substring(1, words[0].length).toLowerCase()
-    , message;
+    , message = false;
 
   switch(command) {
     case 'join':
@@ -36,7 +36,7 @@ Chat.prototype.processCommand = function(currentRoom, command) {
       break;
 
     default:
-      message = '<i>Unrecognized command.</i>';
+      message = 'Unrecognized command.';
       break;
   }
 

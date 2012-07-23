@@ -5,7 +5,7 @@ function divEscapedContentElement(message) {
 }
 
 function divSystemContentElement(message) {
-  return $('<div></div>').html(message);
+  return $('<div></div>').html('<i>' + message + '</i>');
 }
 
 function processUserInput(chatApp, socket) {
@@ -14,7 +14,9 @@ function processUserInput(chatApp, socket) {
 
   if (message[0] == '/') {
     systemMessage = chatApp.processCommand($('#room').text(), message);
-    $('#messages').append(divSystemContentElement(systemMessage));
+    if (systemMessage) {
+      $('#messages').append(divSystemContentElement(systemMessage));
+    }
   } else {
     chatApp.sendMessage($('#room').text(), message);
     $('#messages').append(divEscapedContentElement(message));
@@ -36,13 +38,12 @@ $(document).ready(function() {
     } else {
       message = result.message;
     }
-    message = '<i>' + message + '</i>';
     $('#messages').append(divSystemContentElement(message));
   });
 
   socket.on('joinResult', function(result) {
     $('#room').text(result.room);
-    $('#messages').append(divSystemContentElement('<i>Room changed.</i>'));
+    $('#messages').append(divSystemContentElement('Room changed.'));
   });
 
   socket.on('message', function (message) {
@@ -71,6 +72,8 @@ $(document).ready(function() {
   setInterval(function() {
     socket.emit('rooms');
   }, 1000);
+
+  $('#send-message').focus();
 
   $('#send-form').submit(function() {
     processUserInput(chatApp, socket);
