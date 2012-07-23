@@ -27,14 +27,13 @@ function processUserInput(chatApp, socket) {
 }
 
 $(document).ready(function() {
-  var name
-    , chatApp = new Chat(socket);
+  var chatApp = new Chat(socket);
 
   socket.on('nameResult', function(result) {
     var message;
+
     if (result.success) {
       message = 'You are now known as ' + result.name + '.';
-      name = result.name;
     } else {
       message = result.message;
     }
@@ -65,7 +64,8 @@ $(document).ready(function() {
       chatApp.processCommand(
         $('#room').text(),
         '/join ' + $(this).text()
-      )
+      );
+      $('#send-message').focus();
     });
   });
 
