@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/mcantelon/chatrooms.png)](http://travis-ci.org/mcantelon/chatrooms)
 Minimalist multi-room chat application using Express, Socket.io and Jade.
 
 Very basic.
